@@ -1,38 +1,43 @@
-import mysql.connector
+import psycopg2
 from biblioteca import *
 
-banco = mysql.connector.connect(
+banco = psycopg2.connect(
     host = "localhost",
-    user = "root",
-    password = "123456",
-    database = "usuarios"
+    user = "postgres",
+    password = "postgres",
+    database = "postgres"
 )
 
 entrada_de_comandos = banco.cursor()
+funcao = BancoDeDados()
+objetos = BancoDeDados()
 
 while True:
-    interface = int(input("Opções de acesso: "
-                          "\nExibir Lista[ 1 ]    Cadastro de usuario[ 2 ]"
-                          "\nSair[ 3 ] \ndigite sua escolha: "))
+    interface = funcao.interface()
     if interface == 3:
         break
 
     elif interface == 1:
-        tabela = pesquisa_banco(entrada_de_comandos)
+        objetos.cursorDeEntrada = entrada_de_comandos
+        tabela = funcao.pesquisarNaTabela(objetos.cursorDeEntrada)
         for x in tabela:
             print(x)
+
     elif interface == 2:
-        usuario = input("Digite um usuario para ser adicionado ao banco: ")
-        senha = input("Digite uma senha para o usuario: ")
+        objetos.cliente = input("Digite um usuario para ser adicionado ao banco: ")
+        objetos.senha = input("Digite uma senha para o usuario: ")
+        objetos.cursorDeEntrada = entrada_de_comandos
+        objetos.database = banco
 
         while True:
-            if len(senha) <= 8:
-                copular_banco(usuario,senha,entrada_de_comandos,banco)
+            if len(objetos.senha) <= 8:
+                funcao.copularBanco(objetos.cliente,objetos.senha,
+                                    objetos.cursorDeEntrada,objetos.database)
                 break
 
             else:
                 print("A senha deve ter no maximo 8 caracters")
-                senha = input("Digite uma senha para o usuario: ")
+                objetos.senha = input("Digite uma senha para o usuario: ")
 
 
 entrada_de_comandos.close()
